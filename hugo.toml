@@ -25,25 +25,25 @@ url = "https://github.com/islu"
 # Menu
 [[menu.main]]
 identifier = "categories"
-name = "Categories"
+name = "🗂️ Categories"
 url = "/categories/"
 weight = 10
 
 [[menu.main]]
 identifier = "tags"
-name = "Tags"
+name = "🏷️ Tags"
 url = "/tags/"
 weight = 20
 
 [[menu.main]]
 identifier = "archives"
-name = "Archives"
+name = "📦 Archives"
 url = "/archives/"
 weight = 30
 
 [[menu.main]]
 identifier = "search"
-name = "Search"
+name = "🔍 Search"
 url = "/search/"
 weight = 40
 

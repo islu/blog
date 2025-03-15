@@ -9,9 +9,11 @@ keywords = []
 categories = []
 tags = []
 
-[cover]
-image = "images/"
-alt = ""
-caption = ""
-relative = false
+# [cover]
+# image = "images/cover.png"
+# alt = ""
+# caption = ""
+# relative = false
+# hiddenInList = true
+# hiddenInSingle = false
 +++
