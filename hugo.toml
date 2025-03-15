@@ -11,6 +11,7 @@ showBreadCrumbs = true
 # showPostNavLinks = true
 showCodeCopyButtons = true
 comments = true
+searchHidden = true
 
 # Home Info
 [params.homeInfoParams]
@@ -39,3 +40,12 @@ identifier = "archives"
 name = "Archives"
 url = "/archives/"
 weight = 30
+
+[[menu.main]]
+identifier = "search"
+name = "Search"
+url = "/search/"
+weight = 40
+
+[outputs]
+home = [ "HTML", "RSS", "JSON" ]

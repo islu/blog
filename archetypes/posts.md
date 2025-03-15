@@ -8,4 +8,10 @@ description = ''
 keywords = []
 categories = []
 tags = []
+
+[cover]
+image = "images/"
+alt = ""
+caption = ""
+relative = false
 +++
