@@ -11,7 +11,6 @@ showBreadCrumbs = true
 # showPostNavLinks = true
 showCodeCopyButtons = true
 comments = true
-searchHidden = true
 
 # Home Info
 [params.homeInfoParams]
@@ -21,6 +20,14 @@ content = "Developer, ..."
 [[params.socialIcons]]
 name = "github"
 url = "https://github.com/islu"
+
+# favicon
+[params.assets]
+favicon = "/blog/favicon/favicon.ico"
+favicon16x16 = "/blog/favicon/favicon-16x16.png"
+favicon32x32 = "/blog/favicon/favicon-32x32.png"
+apple_touch_icon = "/blog/favicon/apple-touch-icon.png"
+safari_pinned_tab = "/blog/favicon/safari-pinned-tab.svg"
 
 # Menu
 [[menu.main]]
