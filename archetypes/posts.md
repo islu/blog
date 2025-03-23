@@ -6,7 +6,7 @@ author = 'islu'
 summary = ''
 description = ''
 keywords = []
-categories = []
+categories = ['📝 Note','🤔 Design', '✨ Inspiration', '🐛 HowTo', '🎲 Misc']
 tags = []
 
 # [cover]
@@ -16,4 +16,6 @@ tags = []
 # relative = false
 # hiddenInList = true
 # hiddenInSingle = false
+
+# searchHidden = true
 +++
