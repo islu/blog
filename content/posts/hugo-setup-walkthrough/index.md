@@ -57,7 +57,7 @@ hugo new site blog
 └── themes
 ```
 
-調整設定檔 `hugo.toml` 
+調整設定檔 `hugo.toml`
 ```toml
 baseURL = "https://<username>.github.io/" # your host
 languageCode = "en"
@@ -85,7 +85,7 @@ hugo --config other.toml
 
 ### Add Theme: PaperMod
 
-可以從這邊 [Hugo Themes](https://themes.gohugo.io/) 挑選一個主題來安裝，這邊選擇 [PaperMod](https://themes.gohugo.io/themes/hu go-papermod/) 當作主要的主題
+可以從這邊 [Hugo Themes](https://themes.gohugo.io/) 挑選一個主題來安裝，這邊選擇 [PaperMod](https://themes.gohugo.io/themes/hugo-papermod/) 當作主要的主題
 
 然後參考 [Install / Update PaperMod](https://adityatelange.github.io/hugo-PaperMod/posts/papermod/papermod-installation/) 指引，這裡選擇使用 `submodule` 方式添加
 ```shell
@@ -143,7 +143,7 @@ Add the following to site config, `hugo.toml`
 [outputs]
 home = [ "HTML", "RSS", "JSON" ]
 
-searchHidden = true 
+searchHidden = true
 ```
 
 Create a page with `search.md` in `content` directory with following content
