@@ -1,14 +1,17 @@
 baseURL = 'https://islu.github.io/blog/'
-languageCode = 'en-us'
+languageCode = "zh-tw"
 title = "islu's Blog"
 theme = "PaperMod"
+
+# defaultContentLanguage = "zh-tw"
+# defaultContentLanguageInSubdir = false
 
 [params]
 showReadingTime = true
 # showShareButtons = true
 showToc = true
-showBreadCrumbs = true
-# showPostNavLinks = true
+# showBreadCrumbs = true
+showPostNavLinks = true
 showCodeCopyButtons = true
 comments = true
 
@@ -56,3 +59,43 @@ weight = 40
 
 [outputs]
 home = [ "HTML", "RSS", "JSON" ]
+
+[services]
+  [services.googleAnalytics]
+    id = 'G-XBQ8VHC9L8'
+
+# [languages]
+
+# [languages.zh-tw]
+# contentDir = 'content/zh-tw'
+# languageName = '中文'
+# weight = 10
+
+# [languages.en]
+# contentDir = 'content/en'
+# languageName = 'English'
+# weight = 20
+
+# [[languages.en.menu.main]]
+# identifier = "categories"
+# name = "🗂️ Categories"
+# url = "/en/categories/"
+# weight = 10
+
+# [[languages.en.menu.main]]
+# identifier = "tags"
+# name = "🏷️ Tags"
+# url = "/tags/"
+# weight = 20
+
+# [[languages.en.menu.main]]
+# identifier = "archives"
+# name = "📦 Archives"
+# url = "/archives/"
+# weight = 30
+
+# [[languages.en.menu.main]]
+# identifier = "search"
+# name = "🔍 Search"
+# url = "/search/"
+# weight = 40
