@@ -60,6 +60,10 @@ weight = 40
 [outputs]
 home = [ "HTML", "RSS", "JSON" ]
 
+[services]
+  [services.googleAnalytics]
+    id = 'G-XBQ8VHC9L8'
+
 # [languages]
 
 # [languages.zh-tw]
