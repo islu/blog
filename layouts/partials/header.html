@@ -1,141 +1,33 @@
-{{- /* theme-toggle is enabled */}}
+{{- /* Grass init: override data-theme if stored preference is 'grass' */}}
+{{- /* Also intercept theme-toggle click in capture phase to support 3-theme cycle */}}
 {{- if (not site.Params.disableThemeToggle) }}
-{{- /* theme is light */}}
-{{- if (eq site.Params.defaultTheme "light") }}
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "grass") {
-        document.body.classList.add('grass');
+    if (localStorage.getItem('pref-theme') === 'grass') {
+        document.querySelector('html').dataset.theme = 'grass';
     }
 
-</script>
-{{- /* theme is dark */}}
-{{- else if (eq site.Params.defaultTheme "dark") }}
-<script>
-    if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (localStorage.getItem("pref-theme") === "grass") {
-        document.body.classList.add('grass');
-    }
-</script>
-{{- /* theme is grass */}}
-{{- else if (eq site.Params.defaultTheme "grass") }}
-<script>
-    if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    }
-</script>
-{{- else }}
-{{- /* theme is auto */}}
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (localStorage.getItem("pref-theme") === "grass") {
-        document.body.classList.add('grass');
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-{{- end }}
-{{- /* theme-toggle is disabled and theme is auto */}}
-{{- else if (and (ne site.Params.defaultTheme "light") (ne site.Params.defaultTheme "dark"))}}
-<script>
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#theme-toggle')) return;
+        e.stopImmediatePropagation();
+        const html = document.querySelector('html');
+        const themes = ['light', 'dark', 'grass'];
+        const next = themes[(themes.indexOf(html.dataset.theme) + 1) % themes.length];
+        html.dataset.theme = next;
+        localStorage.setItem('pref-theme', next);
+    }, true);
 </script>
 {{- end }}
 
+{{- /* Grass background image CSS variable */}}
 <!-- https://unsplash.com/photos/a-red-fire-hydrant-sitting-on-top-of-a-lush-green-field-CeqtSiMYzFU -->
 {{ $grass_image := resources.Get "grass.jpg" }}
 {{ if $grass_image }}
-<style>
-    @keyframes windy {
-        0% {
-            background-position-x: 0%;
-        }
-
-        50% {
-            background-position-x: 100%;
-        }
-
-        100% {
-            background-position-x: 0%;
-        }
-    }
-
-    body.grass {
-        background-image: url('{{ $grass_image.Permalink }}');
-        background-size: 150% auto;
-        background-attachment: fixed;
-        animation: windy 40s ease-in-out infinite;
-    }
-
-    body.grass .nav,
-    body.grass footer {
-        background-color: transparent !important;
-        color: #000 !important;
-        text-shadow: -1px -1px 3px rgba(255, 255, 255, 0.8), 1px -1px 3px rgba(255, 255, 255, 0.8), -1px 1px 3px rgba(255, 255, 255, 0.8), 1px 1px 3px rgba(255, 255, 255, 0.8);
-    }
-
-    body.grass .post-meta,
-    body.grass .post-content,
-    body.grass .main,
-    body.grass .page-header,
-    body.grass .archive .post-meta,
-    body.grass .list .post-content,
-    body.grass .list .post-header,
-    body.grass .home-info {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        color: #000 !important;
-    }
-
-    body.grass.dark .nav,
-    body.grass.dark footer {
-        background-color: transparent !important;
-        color: #a5d6a7 !important;
-        text-shadow: -1px -1px 3px rgba(0, 0, 0, 0.7), 1px -1px 3px rgba(0, 0, 0, 0.7), -1px 1px 3px rgba(0, 0, 0, 0.7), 1px 1px 3px rgba(0, 0, 0, 0.7);
-    }
-
-    body.grass.dark .post-meta,
-    body.grass.dark .post-content,
-    body.grass.dark .main,
-    body.grass.dark .page-header,
-    body.grass.dark .archive .post-meta,
-    body.grass.dark .list .post-content,
-    body.grass.dark .list .post-header,
-    body.grass.dark .home-info {
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        color: #a5d6a7 !important;
-    }
-
-    body.grass a {
-        color: #1a5e2d;
-    }
-
-    body.grass a:hover {
-        color: #3a8e4d;
-    }
-
-    body.grass.dark a {
-        color: #a5d6a7;
-    }
-
-    body.grass.dark a:hover {
-        color: #c8e6c9;
-    }
-</style>
+{{- if hugo.IsExtended }}{{ $grass_image = $grass_image.Resize "1920x webp q85" }}{{- end }}
+<style>:root { --grass-bg: url('{{ $grass_image.Permalink }}'); }</style>
 {{ end }}
 
 <header class="header">
-    <nav class="nav">
+    <nav class="header-nav">
         <div class="logo">
             {{- $label_text := (site.Params.label.text | default site.Title) }}
             {{- if site.Title }}
@@ -143,96 +35,98 @@
                 {{- if site.Params.label.icon }}
                 {{- $img := resources.Get site.Params.label.icon }}
                 {{- if $img }}
-                {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
-                {{- if hugo.IsExtended -}}
-                {{- $processableFormats = $processableFormats | append "webp" -}}
-                {{- end -}}
-                {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
-                {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
-                {{- if site.Params.label.iconHeight }}
-                {{- $img = $img.Resize (printf "x%d" site.Params.label.iconHeight) }}
-                {{ else }}
-                {{- $img = $img.Resize "x30" }}
-                {{- end }}
-                {{- end }}
-                <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
-                    height="{{- site.Params.label.iconHeight | default " 30" -}}">
+                    {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
+                    {{- if hugo.IsExtended -}}
+                        {{- $processableFormats = $processableFormats | append "webp" -}}
+                    {{- end -}}
+                    {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
+                    {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
+                        {{- if site.Params.label.iconHeight }}
+                            {{- $img = $img.Resize (printf "x%d" site.Params.label.iconHeight) }}
+                        {{ else }}
+                            {{- $img = $img.Resize "x30" }}
+                        {{- end }}
+                    {{- end }}
+                    <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
+                        height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- else }}
                 <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
-                    height="{{- site.Params.label.iconHeight | default " 30" -}}">
+                    height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- end -}}
-                {{- else if hasPrefix site.Params.label.iconSVG "<svg" }} {{ site.Params.label.iconSVG | safeHTML }} {{-
-                    end -}} {{- $label_text -}} </a>
-                    {{- end }}
-                    <div class="logo-switches">
-                        {{- if (not site.Params.disableThemeToggle) }}
-                        <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                            <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                            </svg>
-                            <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="5"></circle>
-                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                            </svg>
-                            <svg id="grass" fill="#a5d6a7" width="24" height="24" viewBox="0 0 32 32" version="1.1"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                                <g id="SVGRepo_iconCarrier">
-                                    <title>grass-patch</title>
-                                    <path
-                                        d="M1.123 30.824l2.268-20.616c0.42 6.715 0.255 14.465 2.219 18.449 0.699-5.299 0.98-10.494 0.659-15.538 0.95 4.473 2.218 8.841 2.463 13.549 0.461-3.49 0.79-6.959 1.984-10.571-0.047 4.068-1.071 7.794 0.791 9.826 0.901-3.183 1.809-6.358 1.963-10.288 1.327 3.86 1.145 8.475 1.557 12.793 0.525-4.247 0.953-16.089 2.927-19.853-0.194 7.799-0.241 13.973 1.71 17.111 1.928-2.413 2.094-7.141 2.139-11.627 1.361 3.853 2.275 8.243 2.362 13.624 0.538-4.49 1.165-8.98 2.707-13.469-0.359 5.509-0.080 9.793 1.218 12.116 0.859-3.466 1.591-6.932 1.817-10.399 1.149 5.165 0.811 9.958 1.042 14.894h-29.826z">
-                                    </path>
-                                </g>
-                            </svg>
-                        </button>
-                        {{- end }}
+                {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
+                    {{ site.Params.label.iconSVG | safeHTML }}
+                {{- end -}}
+                {{- $label_text -}}
+            </a>
+            {{- end }}
 
-                        {{- $lang := .Lang}}
-                        {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
-                        {{- with site.Home.Translations }}
-                        <ul class="lang-switch">
-                            {{- if $separator }}<li>|</li>{{ end }}
-                            {{- range . -}}
-                            {{- if ne $lang .Lang }}
-                            <li>
-                                <a href="{{- .Permalink -}}"
-                                    title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
-                                    aria-label="{{ .Language.LanguageName | default (.Lang | title) }}">
-                                    {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
-                                    {{- .Language.LanguageName | emojify -}}
-                                    {{- else }}
-                                    {{- .Lang | title -}}
-                                    {{- end -}}
-                                </a>
-                            </li>
-                            {{- end -}}
-                            {{- end}}
-                        </ul>
-                        {{- end }}
-                    </div>
+            {{- $lsenabled := (or (not site.Params.disableThemeToggle) (and (not site.Params.disableLangToggle) (hugo.IsMultilingual))) }}
+            {{- if $lsenabled }}
+            <div class="logo-switches">
+                {{- if (not site.Params.disableThemeToggle) }}
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="grass" fill="#a5d6a7" width="17" height="17" viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <title>grass-patch</title>
+                        <path d="M1.123 30.824l2.268-20.616c0.42 6.715 0.255 14.465 2.219 18.449 0.699-5.299 0.98-10.494 0.659-15.538 0.95 4.473 2.218 8.841 2.463 13.549 0.461-3.49 0.79-6.959 1.984-10.571-0.047 4.068-1.071 7.794 0.791 9.826 0.901-3.183 1.809-6.358 1.963-10.288 1.327 3.86 1.145 8.475 1.557 12.793 0.525-4.247 0.953-16.089 2.927-19.853-0.194 7.799-0.241 13.973 1.71 17.111 1.928-2.413 2.094-7.141 2.139-11.627 1.361 3.853 2.275 8.243 2.362 13.624 0.538-4.49 1.165-8.98 2.707-13.469-0.359 5.509-0.080 9.793 1.218 12.116 0.859-3.466 1.591-6.932 1.817-10.399 1.149 5.165 0.811 9.958 1.042 14.894h-29.826z">
+                        </path>
+                    </svg>
+                </button>
+                {{- end }}
+
+                {{- if (not site.Params.disableLangToggle) }}
+                    {{- $lang := .Lang}}
+                    {{- with site.Home.Translations }}
+                    {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
+                    {{- if $separator }}<span class="nav-sep">|</span>{{ end }}
+                    <ul class="lang-menu">
+                        {{- range . -}}
+                        {{- if ne $lang .Lang }}
+                        <li>
+                            <a href="{{- .Permalink -}}" title="{{ .Language.Params.languageAltTitle | default (.Language.LanguageName | emojify) | default (.Lang | title) }}"
+                                aria-label="{{ .Language.LanguageName | default (.Lang | title) }}">
+                                {{- if (and site.Params.displayFullLangName (.Language.LanguageName)) }}
+                                {{- .Language.LanguageName | emojify -}}
+                                {{- else }}
+                                {{- .Lang | title -}}
+                                {{- end -}}
+                            </a>
+                        </li>
+                        {{- end -}}
+                        {{- end}}
+                    </ul>
+                    {{- end }}
+                {{- end }}
+            </div>
+            {{- end }}
         </div>
         {{- $currentPage := . }}
-        <ul id="menu">
+        <ul id="menu" class="menu">
             {{- range site.Menus.main }}
             {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
             <li>
-                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)"
-                    | safeHTMLAttr) ("" | safeHTMLAttr ) }}" {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" |
-                    safeHTMLAttr ) }}>
+                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
+                {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                     <span {{- if eq $menu_item_url $page_url }} class="active" {{- end }}>
                         {{- .Pre }}
                         {{- .Name -}}
@@ -252,53 +146,3 @@
         </ul>
     </nav>
 </header>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (!themeToggle) {
-            return;
-        }
-
-        const themes = ['light', 'dark', 'grass'];
-        const moonIcon = document.getElementById('moon');
-        const sunIcon = document.getElementById('sun');
-        const grassIcon = document.getElementById('grass');
-
-        let currentTheme = localStorage.getItem('pref-theme') || 'light';
-
-        function applyTheme(theme) {
-            document.body.classList.remove('light', 'dark', 'grass');
-            document.body.classList.add(theme);
-            localStorage.setItem('pref-theme', theme);
-        }
-
-        function updateIcon(theme) {
-            if (moonIcon) moonIcon.style.display = 'none';
-            if (sunIcon) sunIcon.style.display = 'none';
-            if (grassIcon) grassIcon.style.display = 'none';
-
-            if (theme === 'light') {
-                // Currently light, next is dark
-                if (moonIcon) moonIcon.style.display = 'inline';
-            } else if (theme === 'dark') {
-                // Currently dark, next is grass
-                if (grassIcon) grassIcon.style.display = 'inline';
-            } else { // grass
-                // Currently grass, next is light
-                if (sunIcon) sunIcon.style.display = 'inline';
-            }
-        }
-
-        applyTheme(currentTheme);
-        updateIcon(currentTheme);
-
-        themeToggle.addEventListener('click', function (e) {
-            e.preventDefault(); // Prevent any default button action
-            let currentThemeIndex = themes.indexOf(currentTheme);
-            let nextThemeIndex = (currentThemeIndex + 1) % themes.length;
-            currentTheme = themes[nextThemeIndex];
-            applyTheme(currentTheme);
-            updateIcon(currentTheme);
-        });
-    });
-</script>
