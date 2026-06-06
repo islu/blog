@@ -160,7 +160,7 @@ public fun add_liquidity(..., liquidity_amount: u128, tick: u64, ...) {
 
 `SCALE = 2^64`，當 `tick = 0` 時 `sqrt_price = 1`：
 
-```
+```move
 cost = (liquidity_amount * 1) / 2^64
 ```
 

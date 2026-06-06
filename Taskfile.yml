@@ -23,7 +23,8 @@ tasks:
   new-post:
     cmds:
       - |
-        read -p "Enter post slug: " slug
+        printf "Enter post slug: "
+        read slug
         if [ -z "$slug" ]; then
           echo "No slug entered. Cancelled."
           exit 1

@@ -2,9 +2,11 @@
 {{- /* Also intercept theme-toggle click in capture phase to support 3-theme cycle */}}
 {{- if (not site.Params.disableThemeToggle) }}
 <script>
-    if (localStorage.getItem('pref-theme') === 'grass') {
-        document.querySelector('html').dataset.theme = 'grass';
-    }
+    try {
+        if (localStorage.getItem('pref-theme') === 'grass') {
+            document.querySelector('html').dataset.theme = 'grass';
+        }
+    } catch (_) {}
 
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#theme-toggle')) return;
@@ -13,7 +15,7 @@
         const themes = ['light', 'dark', 'grass'];
         const next = themes[(themes.indexOf(html.dataset.theme) + 1) % themes.length];
         html.dataset.theme = next;
-        localStorage.setItem('pref-theme', next);
+        try { localStorage.setItem('pref-theme', next); } catch (_) {}
     }, true);
 </script>
 {{- end }}
