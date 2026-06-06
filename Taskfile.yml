@@ -1,0 +1,37 @@
+version: '3'
+
+vars:
+  CONTENT_DIR: content
+  POSTS_DIR: posts
+
+tasks:
+  run:
+    cmds:
+      - hugo server
+
+  upgrade-hugo:
+    desc: Upgrade Hugo via brew, sync CI version, and update PaperMod submodule
+    cmds:
+      - brew upgrade hugo
+      - |
+        version=$(hugo version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        sed -i '' "s/HUGO_VERSION: .*/HUGO_VERSION: $version/" .github/workflows/hugo.yaml
+        echo "CI updated to HUGO_VERSION: $version"
+      - git submodule update --remote themes/PaperMod
+      - echo "PaperMod submodule updated"
+
+  new-post:
+    cmds:
+      - |
+        printf "Enter post slug: "
+        read slug
+        if [ -z "$slug" ]; then
+          echo "No slug entered. Cancelled."
+          exit 1
+        fi
+        if hugo new "{{.POSTS_DIR}}/$slug/index.md"; then
+          mkdir "{{.CONTENT_DIR}}/{{.POSTS_DIR}}/$slug/images"
+          echo "Created leaf bundle at '{{.CONTENT_DIR}}/{{.POSTS_DIR}}/$slug'"
+        else
+          echo "Failed to create '{{.CONTENT_DIR}}/{{.POSTS_DIR}}/$slug/index.md'."
+        fi

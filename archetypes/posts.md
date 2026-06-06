@@ -6,7 +6,7 @@ author = 'islu'
 summary = ''
 description = ''
 keywords = []
-categories = ['📝 Note', '📝 Analysis', '🤔 Design', '✨ Inspiration', '🐛 HowTo', '🎲 Misc']
+categories = ['Note', 'Writeup']
 tags = []
 
 # [cover]

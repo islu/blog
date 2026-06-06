@@ -6,7 +6,7 @@ author = 'islu'
 summary = 'LABUBU 在 BSC 的可疑攻擊，造成約 $11.9K 的損失'
 description = ''
 keywords = []
-categories = ['📝 Analysis']
+categories = ['Writeup']
 tags = ['bsc', 'solidity']
 
 [cover]

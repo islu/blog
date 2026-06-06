@@ -1,0 +1,79 @@
+@keyframes windy {
+    0%   { background-position-x: 0%; }
+    50%  { background-position-x: 100%; }
+    100% { background-position-x: 0%; }
+}
+
+/* ── Icon visibility: CSS-driven, no JS style.display manipulation ── */
+
+/* Grass icon hidden by default (light/dark show moon/sun via PaperMod CSS) */
+.theme-toggle .grass { display: none; }
+
+/* Dark mode: show grass icon (next theme: grass), hide sun */
+[data-theme="dark"] .theme-toggle .sun   { display: none; }
+[data-theme="dark"] .theme-toggle .grass { display: inline; }
+
+/* Grass mode: show sun (next theme: light), hide moon */
+[data-theme="grass"] .theme-toggle .moon { display: none; }
+[data-theme="grass"] .theme-toggle .sun  { display: inline; }
+
+/* ── Grass background via fixed pseudo-element (avoids Safari scroll jank) ── */
+
+[data-theme="grass"] body {
+    background: transparent !important;
+}
+
+[data-theme="grass"] body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: var(--grass-bg);
+    background-size: 150% auto;
+    animation: windy 40s ease-in-out infinite;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-theme="grass"] body::before {
+        animation: none;
+        background-position-x: 50%;
+    }
+}
+
+/* ── Nav / footer: transparent, white text-shadow for readability ── */
+
+[data-theme="grass"] .header-nav,
+[data-theme="grass"] footer {
+    background-color: transparent !important;
+    color: #000 !important;
+    text-shadow:
+        -1px -1px 3px rgba(255, 255, 255, 0.8),
+         1px -1px 3px rgba(255, 255, 255, 0.8),
+        -1px  1px 3px rgba(255, 255, 255, 0.8),
+         1px  1px 3px rgba(255, 255, 255, 0.8);
+}
+
+/* ── Content areas: semi-transparent white overlay ── */
+
+[data-theme="grass"] .post-meta,
+[data-theme="grass"] .post-content,
+[data-theme="grass"] .main,
+[data-theme="grass"] .page-header,
+[data-theme="grass"] .archive .post-meta,
+[data-theme="grass"] .list .post-content,
+[data-theme="grass"] .list .post-header,
+[data-theme="grass"] .home-info {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    color: #000 !important;
+}
+
+/* ── Link colors ── */
+
+[data-theme="grass"] a {
+    color: #1a5e2d;
+}
+
+[data-theme="grass"] a:hover {
+    color: #3a8e4d;
+}

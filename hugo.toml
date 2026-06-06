@@ -1,5 +1,5 @@
 baseURL = 'https://islu.github.io/blog/'
-languageCode = "zh-tw"
+locale = "zh-tw"
 title = "islu's Blog"
 theme = "PaperMod"
 

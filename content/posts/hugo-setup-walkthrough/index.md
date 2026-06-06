@@ -6,7 +6,7 @@ author = 'islu'
 summary = '想架設一個部落格用來分享筆記，主要使用 Hugo + Github Page，並記錄一下過程 🤔'
 description = '想架設一個部落格用來分享筆記，主要使用 Hugo + Github Page，並記錄一下過程 🤔'
 keywords = []
-categories = ['📝 Note']
+categories = ['Note']
 tags = ['hugo', 'gh-page']
 
 [cover]
