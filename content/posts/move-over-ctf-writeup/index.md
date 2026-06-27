@@ -17,7 +17,7 @@ hiddenInList = true
 hiddenInSingle = false
 +++
 
-[Move Over](https://www.moveoverapp.com/) 是 OpenZeppelin 推出的 Sui Move 安全 CTF，目前共 8 個關卡，這篇是通關後整理的筆記，記漏洞成因和開發上的注意事項，不是完整解題流程
+[Move Over](https://moveover.openzeppelin.com/en/) 是 OpenZeppelin 推出的 Sui Move 安全 CTF，目前共 8 個關卡，這篇是通關後整理的筆記，記漏洞成因和開發上的注意事項，不是完整解題流程
 
 ---
 
@@ -38,7 +38,7 @@ public fun shatter(artifact: Artifact): ArtifactFlag {
 
 ## Level 2 – Coin Collector
 
-從自動販賣機取得 Prize，看到 `buy_prize` 第一眼就注意到問題了：
+從自動販賣機取得 Prize，問題在 `buy_prize`：
 
 ```move
 public fun buy_prize(payment: Token): CoinCollectorFlag {
@@ -92,7 +92,7 @@ Dynamic Field 不會因為 parent 被刪就自動清空，存進去的資料要�
 
 耗盡 Flash Vault 的所有資金（初始 1000），這關用了 Flash Loan 搭配 Hot Potato Pattern
 
-Hot Potato 是一種沒有 `drop` ability 的 struct，建立後必須在同一筆交易內被消耗，否則交易失敗[^2]，Flash Loan[^3] 常靠這個確保借款一定要還——`borrow()` 產生 Receipt（Hot Potato），必須在交易結束前呼叫 `repay()` 消耗它
+Hot Potato 是一種沒有 `drop` ability 的 struct，建立後必須在同一筆交易內被消耗，否則交易失敗[^2]，Flash Loan 常靠這個確保借款一定要還——`borrow()` 產生 Receipt（Hot Potato），必須在交易結束前呼叫 `repay()` 消耗它
 
 但 `cancel()` 的實作有問題：
 
@@ -127,9 +127,9 @@ public fun repay(
 }
 ```
 
-Receipt 的 `pool_id` 只跟呼叫者自行傳入的 `receipt_pool_id` 比對，完全沒有跟正在操作的 `pool` 比較，這讓 Pool A 的 Receipt 可以拿去還 Pool C 的款，Pool A 的資金就這樣流失了
+Receipt 的 `pool_id` 只跟呼叫者自行傳入的 `receipt_pool_id` 比對，完全沒有跟正在操作的 `pool` 比較，這讓 Pool A 的 Receipt 可以拿去還 Pool C 的款，Pool A 的資金因此流失
 
-Sui 裡 Object ID 才是真正的身分識別[^4]，正確做法應該驗證 Receipt 和當前 Pool 是否來自同一個物件：
+Sui 裡 Object ID 才是真正的身分識別[^3]，正確做法應該驗證 Receipt 和當前 Pool 是否來自同一個物件：
 
 ```move
 assert!(receipt.pool_id == object::id(pool), EInvalidReceipt);
@@ -141,7 +141,7 @@ assert!(receipt.pool_id == object::id(pool), EInvalidReceipt);
 
 從流動性池提取大量資金（Token Balance 降至 100,000 以下），問題在 `add_liquidity` 的成本計算
 
-Move 沒有浮點數，DeFi 協議通常用 Fixed Point Arithmetic[^5] 搭配整數模擬小數——用固定的 scale factor 做縮放，需要特別注意除法截斷和溢位邊界：
+Move 沒有浮點數，DeFi 協議通常用 Fixed Point Arithmetic[^4] 搭配整數模擬小數——用固定的 scale factor 做縮放，需要特別注意除法截斷和溢位邊界：
 
 ```move
 const SCALE: u128 = 1 << 64;
@@ -172,10 +172,11 @@ cost = (liquidity_amount * 1) / 2^64
 
 取得原本寄給 ADMIN（`0xAD3171`）的信件，信件的取出有兩種方式，其中 `claim_via` 接受 `RelayHandle` 作為身分證明
 
-這邊用的是 Capability Pattern[^6] 用一個只有授權方才能持有的 struct 作為權限憑證，比直接驗證 sender address 更具擴展性：
+這邊用的是 Capability Pattern[^5] 用一個只有授權方才能持有的 struct 作為權限憑證，比直接驗證 sender address 更具擴展性：
 
 ```move
 public fun claim_via(office: &mut PostOffice, letter_id: ID, handle: &RelayHandle): Letter {
+    // ...（省略：從 office 取出 letter_id 對應的信件）
     assert!(letter.addressee == mailbox_relay::target(handle), EWRONG_RECIPIENT);
     letter
 }
@@ -190,7 +191,7 @@ public fun handle_for(target: address, ctx: &mut TxContext): RelayHandle {
 }
 ```
 
-任何人都可以替任意地址建立 Handle，Capability Pattern 的前提是只有授權方才能持有，這裡的持有門檻是零，等於形同虛設，正確做法：
+任何人都可以替任意地址建立 Handle，Capability Pattern 的前提是只有授權方才能持有，這裡的持有門檻是零，形同虛設，正確做法：
 
 ```move
 assert!(ctx.sender() == target, EUnauthorized);
@@ -204,14 +205,14 @@ assert!(ctx.sender() == target, EUnauthorized);
 
 ```move
 // 實際使用的（有 bug）
-pub fun checked_shlw(n: u128): (u128, bool) {
+public fun checked_shlw(n: u128): (u128, bool) {
     let mask = 0xffffffffu128 << HIGH_BITS_OFFSET;  // HIGH_BITS_OFFSET = 96
     if (n > mask) { (0, true) }  // mask = 2^128 - 2^96，幾乎不可能觸發
     else { (n << SHIFT_BITS, false) }  // SHIFT_BITS = 32
 }
 
 // 正確版本（在 codebase 裡也有，但沒被使用）
-pub fun checked_shlw_strict(n: u128): (u128, bool) {
+public fun checked_shlw_strict(n: u128): (u128, bool) {
     let limit = 1u128 << HIGH_BITS_OFFSET;  // 2^96
     if (n >= limit) { (0, true) }  // 正確邊界
     else { (n << SHIFT_BITS, false) }
@@ -223,7 +224,7 @@ pub fun checked_shlw_strict(n: u128): (u128, bool) {
 特定的 liquidity 值繞過 Overflow 檢查後，計算出的保證金因為整數溢位縮至極小，關倉時透過 `payout_from_liquidity` 換出遠超預期的金額：
 
 ```move
-pub fun payout_from_liquidity(liquidity: u128, shift: u8): u64 {
+public fun payout_from_liquidity(liquidity: u128, shift: u8): u64 {
     let scaled = (liquidity >> shift) as u64;  // shift = 28
     if (scaled == 0) { 1 } else { scaled }
 }
@@ -239,12 +240,10 @@ pub fun payout_from_liquidity(liquidity: u128, shift: u8): u64 {
 
 [^1]: [Sui - Dynamic Field](https://docs.sui.io/concepts/dynamic-fields)
 
-[^2]: [Pattern: Hot Potato](https://move-book.com/programmability/hot-potato-pattern.html)
+[^2]: [Move Book - Pattern: Hot Potato](https://move-book.com/programmability/hot-potato-pattern.html)
 
-[^3]: [Pattern: Hot Potato - Flash Loans](https://move-book.com/programmability/hot-potato-pattern.html#flash-loans)
+[^3]: [Sui - Object Model](https://docs.sui.io/concepts/object-model)
 
-[^4]: [Sui - Object Model](https://docs.sui.io/concepts/object-model)
+[^4]: [Wikipedia - Fixed Point Arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic)
 
-[^5]: [Fixed Point Arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic)
-
-[^6]: [Pattern: Capability](https://move-book.com/programmability/capability.html)
+[^5]: [Move Book - Pattern: Capability](https://move-book.com/programmability/capability.html)
